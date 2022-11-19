@@ -12,6 +12,10 @@ const connectDB = () => {
     return mongoose.connect(mongoURI, { useNewUrlParser : true, useUnifiedTopology : true });
 }
 
+const handleError = (error) => {
+
+}
+
 db.on('error', (err) => { console.log(err.message) });
 db.on('open', () => { console.log('Connected to MongoDB @:' + mongoURI)});
 db.on('close', () => { console.log('Disconnected from MongoDB')} );
@@ -41,6 +45,8 @@ router.post('/', (req, res) => {
 
 // READ
 
+//  Retrieves all Score documents from the Database and sends JSON data as a response.
+
 router.get('/', (req, res) => {
     connectDB().then( () => {
         Score.find({}).then( data => {
@@ -53,6 +59,36 @@ router.get('/', (req, res) => {
         })
     }).catch( (err) => {
         res.send("Couldn't connect to database.  Error: " + err.message);
+    })
+})
+
+//  Retrieves all Score documents with the given initials and sends JSON data as a response.
+
+router.get('/user/:initials', (req, res) => {
+    connectDB().then( ()=> {
+        Score.find({ initials : req.params.initials.toUpperCase() }).then( data => {
+            res.json(data);
+        }).catch( err => {
+            console.log(err.message);
+            res.send(err.message);
+        }).finally( () => {
+            db.close();
+        })
+    }).catch( (err) => {
+        res.send("Couldn't connect to database.  Error: " + err.message);
+    })
+})
+
+router.get('/id/:id', (req, res) => {
+    connectDB().then( () => {
+        Score.findById(req.params.id).then( data => {
+            res.json(data);
+        }).catch( err => {
+            console.log(err.message);
+            res.send(err.message);
+        }).finally( () => {
+            db.close();
+        })
     })
 })
 
